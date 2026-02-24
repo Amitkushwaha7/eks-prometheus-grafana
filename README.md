@@ -10,7 +10,7 @@ The setup includes:
 - Alertmanager for alert handling
 - kube-prometheus-stack for simplified deployment
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - Amazon EKS
 - Kubernetes
@@ -21,7 +21,7 @@ The setup includes:
 - AWS CLI (configured with IAM permissions)
 - eksctl
 
-##  Architecture
+## Architecture
 
 - Amazon EKS Cluster
 - Managed Node Group (t3.medium)
@@ -31,11 +31,11 @@ The setup includes:
 - Grafana connected to Prometheus as datasource
 - Alertmanager handling alerts
 
-##  Cost Consideration
+## Cost Consideration
 
-EKS and EC2 instances are paid services. Ensure that you delete the cluster and related resources after testing to avoid unnecessary AWS charges.
+EKS is a paid service. Ensure that you delete the cluster and related resources after testing to avoid unnecessary AWS charges.
 
-##  Key Learnings
+## Key Learnings
 
 - Setting up EKS cluster using eksctl
 - Configuring IAM OIDC provider
@@ -117,6 +117,7 @@ eksctl create nodegroup --cluster=observability \
 # Update ./kube/config file
 aws eks update-kubeconfig --name observability
 ```
+![EKS](./Assets/EKS.png)
 
 ## Step 2: Install Kube-prometheus-stack
 
@@ -127,15 +128,18 @@ helm repo update
 
 ## Step 3: Deploy the chart into a new namespace "monitoring"
 
-```
-kubectl create ns monitoring
-```
 **Clone this repository:**
 ```
-git clone https://github.com/yourusername/eks-prometheus-grafana.git
+git clone https://github.com/Amitkushwaha7/eks-prometheus-grafana.git
 cd eks-prometheus-grafana
 ```
 
+**Create monitoring namespace:**
+```
+kubectl create ns monitoring
+```
+
+**Deploy kube-prometheus-stack:**
 ```
 helm install monitoring prometheus-community/kube-prometheus-stack \
 -n monitoring \
@@ -152,18 +156,27 @@ kubectl get all -n monitoring
 ```
 kubectl port-forward service/prometheus-operated -n monitoring 9090:9090
 ```
+
+![Prometheus UI](./Assets/prometheus-ui.png)
+
 **NOTE:** If you are using an EC2 instance or Cloud VM, you need to pass `--address 0.0.0.0` to the above command. Then you can access the UI on `instance-ip:port`
 
-- **Grafana UI:** (Password is `prom-operator`)
+- **Grafana UI:** 
 
 ```
 kubectl port-forward service/monitoring-grafana -n monitoring 8080:80
 ```
+
+![Grafana Dashboard](./Assets/grafana-dashboard.png)
+
 - **Alertmanager UI:**
 
 ```
 kubectl port-forward service/alertmanager-operated -n monitoring 9093:9093
 ```
+
+![Alertmanager UI](./Assets/alertmanager-ui.png)
+
 ## Step 5: Clean Up
 
 - **Uninstall Helm chart:**
